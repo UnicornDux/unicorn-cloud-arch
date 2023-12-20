@@ -1,0 +1,31 @@
+server:
+  port: 20001
+
+spring:
+  application:
+    name: micro-auth
+  cloud:
+    nacos:
+      # 注册中心
+      discovery:
+        server-addr: http://192.168.126.10:8848
+        username: nacos
+        password: nacos
+        group: DEFAULT_GROUP
+        namespace: public
+      # 配置中心
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        username: nacos
+        password: nacos
+        file-extension: yaml
+        shared-configs:
+          - data-id: micro-common.yaml
+            refresh: true
+
+logging:
+  level:
+    com.edu.code.auth: DEBUG
+
+
+
