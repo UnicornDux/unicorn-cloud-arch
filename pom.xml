@@ -9,6 +9,7 @@
   <modules>
     <module>micro-common</module>
     <module>micro-auth</module>
+    <module>micro-admin</module>
   </modules>
 
   <parent>
@@ -19,7 +20,6 @@
   </parent>
 
   <properties>
-    <spring-boot.version>2.7.15</spring-boot.version>
     <spring-cloud.version>2021.0.5</spring-cloud.version>
     <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
     <hutool.version>5.8.18</hutool.version>
