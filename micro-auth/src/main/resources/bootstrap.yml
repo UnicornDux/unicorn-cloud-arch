@@ -26,6 +26,7 @@ spring:
 logging:
   level:
     com.edu.code.auth: DEBUG
+    org.org.springframework: INFO
 
 
 

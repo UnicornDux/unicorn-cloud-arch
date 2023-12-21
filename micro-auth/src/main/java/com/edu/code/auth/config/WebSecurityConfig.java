@@ -1,20 +1,28 @@
 package com.edu.code.auth.config;
 
+import cn.hutool.json.JSONUtil;
+import com.edu.code.base.result.Result;
+import com.edu.code.base.result.ResultCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.http.HttpHeaders;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+import java.io.PrintWriter;
 
 @Slf4j
 @Configuration
@@ -22,17 +30,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private UserDetailsService sysUserDetailsService;
+    private final UserDetailsService sysUserDetailsService;
+
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web.ignoring().antMatchers("/auth/**");
+//    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/oauth/**").permitAll()
-                .anyRequest().authenticated()
+
+        http.csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
                 .and()
                 .httpBasic()
                 .and()
-                .csrf().disable();
+                .authorizeRequests()
+                .anyRequest().authenticated();
     }
+
 
     /**
      * 认证管理对象
@@ -74,11 +90,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        super.configure(web);
+
+    /**
+     * 自定义认证失败时返回的信息
+     * @return
+     */
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+       return (request, response, authException) -> {
+           response.setStatus(HttpStatus.OK.value());
+           response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+           response.setHeader("Access-Control-Allow-Origin", "*");
+           response.setHeader("Cache-Control", "no-cache");
+           Result<Void> result = Result.failed(ResultCode.CLIENT_AUTHENTICATION_FAILED);
+           PrintWriter writer = response.getWriter();
+           writer.print(JSONUtil.toJsonStr(result));
+           writer.flush();
+       };
     }
 }
