@@ -10,6 +10,7 @@
     <module>micro-common</module>
     <module>micro-auth</module>
     <module>micro-admin</module>
+      <module>micro-gateway</module>
   </modules>
 
   <parent>

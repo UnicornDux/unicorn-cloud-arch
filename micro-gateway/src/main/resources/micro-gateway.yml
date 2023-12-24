@@ -1,0 +1,77 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwt-set-uri: http://127.0.0.1:9999/micro-auth/oauth/public-key
+
+  redis:
+    timeout: PT30S
+    host: ${redis.host}
+    port: ${redis.port}
+    password: ${redis.password}
+    pool:
+      # 连接池最大连接数，使用负数则表示没有限制
+      maxactive: 64
+      # 连接池中的最大空闲连接
+      maxidle: 64
+      # 连接池中最大的阻塞等待时间，负数表示没有限制
+      maxwait: -1
+      # 连接池中的最小空闲连接
+      minidle: 1
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enable: true  # 启用服务发现
+          lower-case-service-id: true
+        routes:
+          - id:  # 认证中心
+            uri: lb://micro-auth
+            predicates:
+              - Path=/micro-auth/**
+            filters:
+              - StripPrefix=1
+          - id: # 系统服务
+            uri: lb://micro-admin
+            predicates:
+              - Path=/micro-admin/**
+            filter:
+              - StripPrefix=1
+security:
+  ignoreUris:
+    - /micron-auth/oauth/token/**
+    - /micron-auth/oauth/public-key
+    - /webjars/**
+
+# 是否开启本地缓存
+local-cache:
+  enabled: false
+
+# 负载均衡 ribbon 配置
+ribbon:
+  ReadTimeout: 120000
+  ConnectTimeout: 18000
+  SocketTimeout: 10000
+  MaxAutoRetries: 0
+  MaxAuthRetriesServer: 1
+
+
+# 熔断降级
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 40000
+
+# feign 配置
+feign:
+  httpclient:
+    enabled: true
+  okhttp:
+    enabled: false
+  sentinel: # 开启 feign 对 sentinel 的支持
+    enabled: false

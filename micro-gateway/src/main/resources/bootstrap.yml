@@ -1,0 +1,18 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: micro-gateway
+  cloud:
+    nacos:
+      # 注册中心
+      discovery:
+        server-addr: http://127.0.0.1:8848
+      # 配置中心
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yaml
+        shared-configs:
+          - data-id: micro-common.yaml
+            refresh: true
