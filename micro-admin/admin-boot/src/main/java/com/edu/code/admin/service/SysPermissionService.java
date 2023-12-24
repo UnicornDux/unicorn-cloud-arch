@@ -9,6 +9,6 @@ import java.util.List;
 public interface SysPermissionService  extends IService<SysPermission> {
     boolean refreshPermRolesRules();
 
-    List<SysPermission> listPermission();
+    List<SysPermission> listPermRoles();
 
 }

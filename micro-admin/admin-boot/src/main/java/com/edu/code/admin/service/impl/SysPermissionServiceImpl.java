@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, SysPermission> implements SysPermissionService {
 
     private final RedisUtils redisUtils;
+    private final SysPermissionMapper sysPermissionMapper;
 
     @Override
     public boolean refreshPermRolesRules() {
@@ -46,7 +47,7 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
     }
 
     @Override
-    public List<SysPermission> listPermission() {
-        return null;
+    public List<SysPermission> listPermRoles() {
+        return sysPermissionMapper.listPermRoles();
     }
 }

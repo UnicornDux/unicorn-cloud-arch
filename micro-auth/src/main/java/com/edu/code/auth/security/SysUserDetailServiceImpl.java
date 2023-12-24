@@ -1,6 +1,10 @@
 package com.edu.code.auth.security;
 
+import com.edu.code.admin.api.UserFeignClient;
+import com.edu.code.admin.dto.UserAuthDTO;
 import com.edu.code.auth.enums.PasswordEncoderTypeEnum;
+import com.edu.code.base.result.Result;
+import com.edu.code.base.result.ResultCode;
 import com.edu.code.web.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,43 +24,53 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysUserDetailServiceImpl implements UserDetailsService {
 
-    @Autowired
-    ClientDetailsService clientDetailsService;
+    private final UserFeignClient userFeignClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 取出身份，如果身份为空说明没有认证
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // 没有认证统一采用httpBasic认证，httpBasic中存储了client_id和client_secret，
-        // 开始认证client_id和client_secret
-//        if(authentication==null){
-//            ClientDetails clientDetails = clientDetailsService.loadClientByClientId(username);
-//            if(clientDetails!=null){
-//                // 密码
-//                String clientSecret = clientDetails.getClientSecret();
-//                return new User(
-//                        username,
-//                        clientSecret,
-//                        AuthorityUtils.commaSeparatedStringToAuthorityList("")
-//                );
-//            }
-//        }
         // 后面从管理端获取用户信
-        SysUserDetails userDetails = loadUser(username);
-        if (!userDetails.isEnabled()){
+        Result<UserAuthDTO> result = userFeignClient.getUserByUsername(username);
+        SysUserDetails sysUserDetails = null;
+        if (ResultCode.SUCCESS.getCode().equals(result.getCode())) {
+            UserAuthDTO user = result.getData();
+            if (!Objects.isNull(user)) {
+                sysUserDetails  = SysUserDetails.builder()
+                        .userId(user.getUserId())
+                        .username(user.getUsername())
+                        .authorities(handleRoles(user.getRoles()))
+                        .enabled(user.getStatus() == 1)
+                        .password(PasswordEncoderTypeEnum.BCRYPT.getPrefix() + user.getPassword())
+                        .build();
+            }
+        }
+        if (Objects.isNull(sysUserDetails)) {
+            throw new UsernameNotFoundException(ResultCode.USER_NOT_EXIST.getMsg());
+        }
+        if (!sysUserDetails.isEnabled()){
             throw new BizException("账号被禁用");
-        }else if (!userDetails.isAccountNonLocked()) {
+        }else if (!sysUserDetails.isAccountNonLocked()) {
             throw new BizException("账号被锁定");
-        }else if (!userDetails.isAccountNonExpired()) {
+        }else if (!sysUserDetails.isAccountNonExpired()) {
             throw new BizException("账号已经过期");
         }
-        return userDetails;
+        return sysUserDetails;
+    }
+
+    // 将角色转换为对应的权限对象
+    private Collection<SimpleGrantedAuthority> handleRoles(List<String> roles) {
+          return roles
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     private SysUserDetails loadUser(String username) {

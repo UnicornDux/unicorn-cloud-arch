@@ -1,0 +1,16 @@
+server:
+  port: 20004
+
+spring:
+  application:
+    name: micro-admin
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://127.0.0.1:8848
+      config:
+        server-addr: ${spring.cloud.nacos.config.server-addr}
+        file-extension: yaml
+        shared-configs:
+          - data-id: micro-common.yaml
+            refresh: true
