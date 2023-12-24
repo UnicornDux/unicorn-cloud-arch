@@ -4,6 +4,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -71,5 +72,12 @@ public class RedisUtils {
 
     // ===================== String ========================
 
+
+
+
+    // ===================== hash ==========================
+    public void putAll(String key, Map<?,?> map){
+        redisTemplate.opsForHash().putAll(key, map);
+    }
 
 }
