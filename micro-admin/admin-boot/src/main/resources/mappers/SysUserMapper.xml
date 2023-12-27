@@ -3,7 +3,7 @@
 <mapper namespace="com.edu.code.admin.mapper.SysUserMapper">
 
     <resultMap id="BaseResultMap" type="com.edu.code.admin.entity.SysUser">
-        <id property="id" jdbcType="BIGINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
         <result property="gender" column="gender" jdbcType="BOOLEAN"/>
@@ -32,7 +32,7 @@
         gmt_create,
         gmt_modified,
         deleted
-    </sqli>
+    </sql>
 
 
     <resultMap id="uerAuthMap" type="com.edu.code.admin.dto.UserAuthDTO">

@@ -7,10 +7,14 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: http://127.0.0.1:8848
+        server-addr: http://192.168.126.10:8848
       config:
-        server-addr: ${spring.cloud.nacos.config.server-addr}
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
         file-extension: yaml
         shared-configs:
           - data-id: micro-common.yaml
             refresh: true
+
+logging:
+  level:
+    com.edu.code.admin: DEBUG
