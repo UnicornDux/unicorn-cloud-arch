@@ -10,7 +10,7 @@ spring:
     database: 0
     host: ${redis.host}
     port: ${redis.port}
-    password: ${redis.password}
+    # password: ${redis.password}
 
   cache:
     # 缓存类型

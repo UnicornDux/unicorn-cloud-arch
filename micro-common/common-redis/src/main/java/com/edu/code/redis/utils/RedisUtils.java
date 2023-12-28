@@ -82,4 +82,7 @@ public class RedisUtils {
         redisTemplate.opsForHash().putAll(key, map);
     }
 
+    public Map<?, ?> entries(String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
 }

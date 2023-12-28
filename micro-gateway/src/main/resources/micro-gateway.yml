@@ -6,10 +6,10 @@ spring:
           jwt-set-uri: http://127.0.0.1:9999/micro-auth/oauth/public-key
 
   redis:
-    timeout: PT30S
+    # timeout: PT30S
     host: ${redis.host}
     port: ${redis.port}
-    password: ${redis.password}
+    # password: ${redis.password}
     pool:
       # 连接池最大连接数，使用负数则表示没有限制
       maxactive: 64
@@ -41,8 +41,8 @@ spring:
               - StripPrefix=1
 security:
   ignoreUris:
-    - /micron-auth/oauth/token/**
-    - /micron-auth/oauth/public-key
+    - /micro-auth/oauth/token
+    - /micro-auth/oauth/public-key
     - /webjars/**
 
 # 是否开启本地缓存

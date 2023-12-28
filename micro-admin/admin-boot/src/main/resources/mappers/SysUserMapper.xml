@@ -19,8 +19,8 @@
     </resultMap>
 
     <sql id="BaseColumnList">
-       id,
-           username,
+        id,
+        username,
         nickname,
         gender,
         password,
@@ -33,7 +33,6 @@
         gmt_modified,
         deleted
     </sql>
-
 
     <resultMap id="uerAuthMap" type="com.edu.code.admin.dto.UserAuthDTO">
         <id property="userId" column="userId" jdbcType="BIGINT"/>
