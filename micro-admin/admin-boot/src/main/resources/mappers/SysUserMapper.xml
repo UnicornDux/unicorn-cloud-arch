@@ -34,7 +34,7 @@
         deleted
     </sql>
 
-    <resultMap id="uerAuthMap" type="com.edu.code.admin.dto.UserAuthDTO">
+    <resultMap id="userAuthMap" type="com.edu.code.admin.dto.UserAuthDTO">
         <id property="userId" column="userId" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
@@ -44,14 +44,12 @@
         </collection>
     </resultMap>
 
-    <select id="getByUsername" resultType="com.edu.code.admin.dto.UserAuthDTO">
+    <select id="getByUsername" resultMap="userAuthMap">
         select t1.id userId, t1.username, t1.nickname, t1.password, t1.status, t3.code roleCode
-        from sys_user t1
-        sys_user_role t2
-        sys_role t3
+        from sys_user t1, sys_user_role t2, sys_role t3
         where t1.username = #{username}
         and t1.deleted = 0
-        and t1.id = t2.user_id,
+        and t1.id = t2.user_id
         and t2.role_id = t3.id
     </select>
 </mapper>

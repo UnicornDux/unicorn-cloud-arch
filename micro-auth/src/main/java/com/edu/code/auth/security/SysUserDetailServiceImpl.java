@@ -85,4 +85,9 @@ public class SysUserDetailServiceImpl implements UserDetailsService {
                 .build();
 
     }
+
+    public static void main(String[] args) {
+
+        System.out.println(PasswordEncoderTypeEnum.BCRYPT.getPrefix() + new BCryptPasswordEncoder().encode("123456789"));
+    }
 }

@@ -34,7 +34,7 @@ public class AuthController {
         return Result.ok(auth2AccessToken);
     }
 
-    @GetMapping("publi-key")
+    @GetMapping("public-key")
     public Map<String, Object> getPublicKey() {
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAKey key = new RSAKey.Builder(publicKey).build();

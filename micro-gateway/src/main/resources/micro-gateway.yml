@@ -3,7 +3,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwt-set-uri: http://127.0.0.1:9999/micro-auth/oauth/public-key
+          # 这里是 jwk
+          jwk-set-uri: http://127.0.0.1:20001/oauth/public-key
 
   redis:
     # timeout: PT30S
@@ -26,22 +27,25 @@ spring:
         locator:
           enable: true  # 启用服务发现
           lower-case-service-id: true
-        routes:
-          - id:  # 认证中心
-            uri: lb://micro-auth
-            predicates:
-              - Path=/micro-auth/**
-            filters:
-              - StripPrefix=1
-          - id: # 系统服务
-            uri: lb://micro-admin
-            predicates:
-              - Path=/micro-admin/**
-            filter:
-              - StripPrefix=1
+      routes:
+        # 认证中心
+        - id: auth-route-api
+          uri: lb://micro-auth
+          predicates:
+            - Path=/micro-auth/**
+          filters:
+            - StripPrefix=1
+        # 系统服务
+        - id: admim-route-api
+          uri: lb://micro-admin
+          predicates:
+            - Path=/micro-admin/**
+          filters:
+            - StripPrefix=1
 security:
   ignoreUris:
     - /micro-auth/oauth/token
+    - /micro-auth/oauth/token/**
     - /micro-auth/oauth/public-key
     - /webjars/**
 

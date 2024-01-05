@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -21,17 +21,19 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity
+@EnableWebFluxSecurity
 public class ResourceServerConfig {
 
-    private final ResourceServerManager resourceServerManager;
+    private final ResourceAuthorizationManager authenticationManager;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity){
-        httpSecurity.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthoriticationConverter());
-        httpSecurity.oauth2ResourceServer().authenticationEntryPoint(authenticationEntryPoint());
+        httpSecurity.oauth2ResourceServer().jwt()
+                .jwtAuthenticationConverter(jwtAuthoriticationConverter());
+        httpSecurity.oauth2ResourceServer()
+                .authenticationEntryPoint(authenticationEntryPoint());
         httpSecurity.authorizeExchange()
-                .anyExchange().access(resourceServerManager)
+                .anyExchange().access(authenticationManager)
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler()) // 处理未授权的请求

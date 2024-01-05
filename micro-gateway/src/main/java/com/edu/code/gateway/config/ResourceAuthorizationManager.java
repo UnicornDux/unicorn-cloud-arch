@@ -1,5 +1,6 @@
 package com.edu.code.gateway.config;
 
+
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.text.AntPathMatcher;
@@ -13,6 +14,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -31,17 +34,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Configuration
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "security")
-public class ResourceServerManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+public class ResourceAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
     private final RedisUtils redisUtils;
 
     // 白名单 不使用 security 自带的
     // 抽离到配置文件,从配置中心中以支持动态修改
     @Setter
-    private List<String> ignoreUrls;
+    private List<String> ignoreUris;
 
     @Override
-    public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext context) {
+    public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext context) {
         ServerHttpRequest request = context.getExchange().getRequest();
         if (request.getMethod() == HttpMethod.OPTIONS) {
            return Mono.just(new AuthorizationDecision(true));
@@ -84,13 +87,13 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
         }
 
         // 判断 jwt 中携带的用户角色是否有权限访问
-        return authentication
+        return mono
                 .filter(Authentication::isAuthenticated)
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
                 .any( authority -> {
                     String roleCode = authority.substring(SecurityConstants.AUTHORITY_PREFIX.length());
-                    return CollectionUtil.isNotEmpty(authorizedRoles) && authorizedRoles.contains(roleCode);
+                     return CollectionUtil.isNotEmpty(authorizedRoles) && authorizedRoles.contains(roleCode);
                 })
                 .map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
@@ -100,7 +103,7 @@ public class ResourceServerManager implements ReactiveAuthorizationManager<Autho
      * 跳过校验
      */
     private boolean skipValid(String path) {
-        return ignoreUrls.stream().anyMatch((item) -> UrlPatternUtils.match(item, path));
+        return ignoreUris.stream().anyMatch((item) -> UrlPatternUtils.match(item, path));
     }
 
 }

@@ -19,8 +19,6 @@ import java.util.Arrays;
 @EnableFeignClients
 public class AdminApplication {
     public static void main( String[] args ) {
-        ConfigurableApplicationContext run = SpringApplication.run(AdminApplication.class, args);
-        Arrays.stream(run.getBeanDefinitionNames()).forEach(System.out::println);
-
+        SpringApplication.run(AdminApplication.class, args);
     }
 }
